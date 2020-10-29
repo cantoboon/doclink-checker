@@ -1,9 +1,10 @@
 use std::{env, fs};
+use std::fs::DirEntry;
 use std::path::PathBuf;
-use std::{io, fmt};
+use std::io;
 use regex::Regex;
-use reqwest::StatusCode;
-use std::error::Error;
+
+mod checker;
 
 fn main() {
     let mut current_dir = env::current_dir().unwrap();
@@ -12,14 +13,26 @@ fn main() {
     scan_dir(current_dir);
 }
 
-fn scan_dir(dir: PathBuf) -> Result<String, io::Error> {
-    for entry in fs::read_dir(dir)? {
-        let entry = entry?;
-        let path = entry.path();
-        read_file(path);
-    }
+fn scan_dir(dir: PathBuf) {
+    match fs::read_dir(dir.clone()) {
+        Ok(entries) => {
+            for entry in entries {
+                let entry = entry.unwrap();
+                handle_dir_entry(entry);
+            }
+        },
+        Err(e) => println!("Failed to read dir: {} - {}", dir.to_str().unwrap(), e),
+    };    
+}
 
-    Ok(String::new())
+fn handle_dir_entry(entry: DirEntry) {
+    let file_type = entry.file_type().expect("failed to get file_type");
+
+    if file_type.is_dir() {
+        scan_dir(entry.path());
+    }  else {
+        read_file(entry.path());
+    }
 }
 
 fn read_file(path: PathBuf) -> Result<String, io::Error> {
@@ -31,7 +44,7 @@ fn read_file(path: PathBuf) -> Result<String, io::Error> {
         match str_match.get(1) {
             Some(res) => {
                 let url = res.as_str();
-                match test_url(url) {
+                match checker::test_url(url) {
                     Ok(_) => println!("src: {} - {} - OK", path.to_str().unwrap(), url),
                     Err(_) => println!("{} - Failed", url),
                 };
@@ -41,32 +54,4 @@ fn read_file(path: PathBuf) -> Result<String, io::Error> {
     }
 
     Ok(contents)
-}
-
-#[derive(Debug)]
-struct UrlTestError {
-    url: String,
-    problem: String,
-}
-
-impl fmt::Display for UrlTestError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Could not reach url '{}'. Problem: {}", self.url, self.problem)
-    }
-}
-
-impl Error for UrlTestError {}
-
-
-fn test_url(url: &str) -> Result<(), UrlTestError> {
-    let resp = match reqwest::blocking::get(url) {
-        Ok(resp) => resp,
-        Err(_) => return Err(UrlTestError{url: url.to_string(), problem: "Failed to make request".to_string()}),
-    };
-
-    if resp.status() == StatusCode::NOT_FOUND {
-        return Err(UrlTestError{url: url.to_string(), problem: "Not found".to_string()});
-    }
-
-    Ok(())
 }
