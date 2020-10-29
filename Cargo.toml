@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 git2 = "0.13.12"
+regex = "1"
+reqwest = { version = "0.10.8", features = ["blocking", "json"] }
