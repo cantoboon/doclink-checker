@@ -54,7 +54,7 @@ fn handle_test_result(path: &str, url: &str, result: Result<TestResult, UrlTestE
         Ok(tr) => match tr {
             TestResult::Ok => println!("{} - {} - OK", path, url),
             TestResult::NotFound => println!("{} - {} - Not Found", path, url),
-            TestResult::Redirect => println!("{} - {} - Redirect Found", path, url),
+            TestResult::Redirect(redirect) => println!("{} - {} - Redirect Found: {}", path, url, redirect),
         },
         Err(e) => println!("{} - {} - Failed: {}", path, url, e)
     }

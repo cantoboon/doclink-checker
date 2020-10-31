@@ -1,10 +1,11 @@
 use reqwest::StatusCode;
 use std::error::Error;
 use std::fmt;
+use reqwest::Url;
 
 pub enum TestResult {
     Ok,
-    Redirect,
+    Redirect(Url),
     NotFound,
 }
 
@@ -16,6 +17,10 @@ pub fn test_url(url: &str) -> Result<TestResult, UrlTestError> {
 
     if resp.status() == StatusCode::NOT_FOUND {
         return Ok(TestResult::NotFound);
+    }
+
+    if resp.url().as_str() != url {
+        return Ok(TestResult::Redirect(resp.url().clone()))
     }
 
     Ok(TestResult::Ok)

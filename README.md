@@ -6,6 +6,7 @@ are still valid.
 ## Completes Features
 
 - Recursively scan directories
+- Highlight URLs that result in a redirect
 
 ## To do
 
@@ -14,4 +15,3 @@ are still valid.
     - `--find-only`? Something that disables the url checking and simply lists all the urls available
     - A Go-like format flag similar to Docker would be nice
 - Colour highlighting
-- For urls that redirect, show the final redirect url.
