@@ -1,22 +1,24 @@
+use checker::TestResult;
+use clap::{App, Arg};
+use colored::*;
+use regex::Regex;
 use std::fs;
 use std::fs::DirEntry;
 use std::path::{Path, PathBuf};
-use regex::Regex;
-use checker::{TestResult};
-use colored::*;
-use clap::{App, Arg};
 
 mod checker;
 
 fn main() {
     let args = App::new("Doclink Checker")
-                    .author("Lewis Boon")
-                    .about("Check documentation, like Markdown, for broken links")
-                    .arg(Arg::with_name("INPUT")
-                        .help("The input directory, or file, to check")
-                        .required(true)
-                        .index(1))
-                    .get_matches();
+        .author("Lewis Boon")
+        .about("Check documentation, like Markdown, for broken links")
+        .arg(
+            Arg::with_name("INPUT")
+                .help("The input directory, or file, to check")
+                .required(true)
+                .index(1),
+        )
+        .get_matches();
 
     let input = args.value_of("INPUT").unwrap_or(".");
 
@@ -41,9 +43,9 @@ fn scan_dir(dir: &Path) {
                 let entry = entry.unwrap();
                 handle_dir_entry(entry);
             }
-        },
+        }
         Err(e) => println!("Failed to read dir: {} - {}", dir.to_str().unwrap(), e),
-    };    
+    };
 }
 
 /// Handles whether it is file or directory
@@ -52,7 +54,7 @@ fn handle_dir_entry(entry: DirEntry) {
 
     if file_type.is_dir() {
         scan_dir(&entry.path());
-    }  else {
+    } else {
         read_file(entry.path());
     }
 }
@@ -62,10 +64,15 @@ fn read_file(path: PathBuf) {
     let contents = fs::read_to_string(path.as_path())
         .unwrap_or_else(|_| panic!("failed to read file: '{}'", path.to_str().unwrap()));
 
-    let re = Regex::new(r#"((http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?)"#).unwrap();
+    let re = Regex::new(
+        r#"((http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?)"#,
+    )
+    .unwrap();
 
     for str_match in re.captures_iter(&contents) {
-        let str_match = str_match.get(1).expect("failed to get first match out of a Match");
+        let str_match = str_match
+            .get(1)
+            .expect("failed to get first match out of a Match");
         let url = str_match.as_str();
         handle_test_result(path.to_str().unwrap(), url, checker::test_url(url));
     }
