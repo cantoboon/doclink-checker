@@ -7,23 +7,24 @@ pub enum TestResult {
     Ok,
     Redirect(Url),
     NotFound,
+    Error(UrlTestError)
 }
 
-pub fn test_url(url: &str) -> Result<TestResult, UrlTestError> {
+pub fn test_url(url: &str) -> TestResult {
     let resp = match reqwest::blocking::get(url) {
         Ok(resp) => resp,
-        Err(_) => return Err(UrlTestError{url: url.to_string(), problem: "Failed to make request".to_string()}),
+        Err(_) => return TestResult::Error(UrlTestError{url: url.to_string(), problem: "Failed to make request".to_string()}),
     };
 
     if resp.status() == StatusCode::NOT_FOUND {
-        return Ok(TestResult::NotFound);
+        return TestResult::NotFound
     }
 
     if resp.url().as_str() != url {
-        return Ok(TestResult::Redirect(resp.url().clone()))
+        return TestResult::Redirect(resp.url().clone())
     }
 
-    Ok(TestResult::Ok)
+    TestResult::Ok
 }
 
 #[derive(Debug)]

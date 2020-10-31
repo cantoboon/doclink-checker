@@ -2,8 +2,8 @@ use std::{env, fs};
 use std::fs::DirEntry;
 use std::path::PathBuf;
 use regex::Regex;
-use checker::{TestResult, UrlTestError};
-
+use checker::{TestResult};
+use colored::*;
 
 mod checker;
 
@@ -49,13 +49,13 @@ fn read_file(path: PathBuf) {
 }
 
 /// Handles the result of testing a URL. Currently just prints the result.
-fn handle_test_result(path: &str, url: &str, result: Result<TestResult, UrlTestError>) {
+fn handle_test_result(path: &str, url: &str, result: TestResult) {
+    print!("{} - {} - ", path.blue(), url);
+
     match result {
-        Ok(tr) => match tr {
-            TestResult::Ok => println!("{} - {} - OK", path, url),
-            TestResult::NotFound => println!("{} - {} - Not Found", path, url),
-            TestResult::Redirect(redirect) => println!("{} - {} - Redirect Found: {}", path, url, redirect),
-        },
-        Err(e) => println!("{} - {} - Failed: {}", path, url, e)
+        TestResult::Ok => println!("{}", "OK".green()),
+        TestResult::NotFound => println!("{}", "Not Found".red()),
+        TestResult::Redirect(redirect) => println!("{}: {}", "Redirect Found".yellow(), redirect),
+        TestResult::Error(e) => println!("{}: {}", "Failed".red(), e),
     }
 }
