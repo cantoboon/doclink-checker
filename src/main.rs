@@ -8,9 +8,11 @@ use std::path::{Path, PathBuf};
 
 mod checker;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 fn main() {
     let args = App::new("doclink checker")
-        .version("1.0.0")
+        .version(VERSION)
         .about("Check documentation, like Markdown, for broken links")
         .long_about("
 Check documentation, like Markdown, for broken links.
