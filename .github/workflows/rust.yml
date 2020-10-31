@@ -24,7 +24,7 @@ jobs:
       run: cargo build --release --locked && mv target/release/doclink-checker target/release/doclink-checker-linux-amd64
 
     - name: Release
-      uses: softprop/action-gh-release@v1
+      uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
