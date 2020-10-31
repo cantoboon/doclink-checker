@@ -1,21 +1,30 @@
 use std::{env, fs};
 use std::fs::DirEntry;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use regex::Regex;
 use checker::{TestResult};
 use colored::*;
+use clap::{App, Arg};
 
 mod checker;
 
 fn main() {
-    let mut current_dir = env::current_dir().unwrap();
-    current_dir.push("test_data");
+    let args = App::new("Doclinks Checker")
+                    .author("Lewis Boon")
+                    .about("Check documentation, like Markdown, for broken links")
+                    .arg(Arg::with_name("INPUT")
+                        .help("The input directory, or file, to check")
+                        .required(true)
+                        .index(1))
+                    .get_matches();
 
-    scan_dir(current_dir);
+    let input = args.value_of("INPUT").unwrap_or(".");
+ 
+    scan_dir(Path::new(input));
 }
 
-fn scan_dir(dir: PathBuf) {
-    match fs::read_dir(dir.clone()) {
+fn scan_dir(dir: &Path) {
+    match fs::read_dir(dir) {
         Ok(entries) => {
             for entry in entries {
                 let entry = entry.unwrap();
@@ -30,14 +39,15 @@ fn handle_dir_entry(entry: DirEntry) {
     let file_type = entry.file_type().expect("failed to get file_type");
 
     if file_type.is_dir() {
-        scan_dir(entry.path());
+        scan_dir(&entry.path());
     }  else {
         read_file(entry.path());
     }
 }
 
 fn read_file(path: PathBuf) {
-    let contents = fs::read_to_string(path.as_path()).expect("failed to read file");
+    let contents = fs::read_to_string(path.as_path())
+        .unwrap_or_else(|_| panic!("failed to read file: '{}'", path.to_str().unwrap()));
 
     let re = Regex::new(r#"((http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?)"#).unwrap();
 

@@ -10,3 +10,4 @@ edition = "2018"
 regex = "1"
 reqwest = { version = "0.10.8", features = ["blocking", "json"] }
 colored = "2.0.0"
+clap = "2.33.3"
