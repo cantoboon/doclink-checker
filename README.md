@@ -2,6 +2,7 @@
 
 [![Build](https://github.com/labooner/doclink-checker/workflows/Build/badge.svg)](https://github.com/labooner/doclink-checker/actions?query=workflow%3ABuild)
 [![Security Audit](https://github.com/labooner/doclink-checker/workflows/Security%20audit/badge.svg)](https://github.com/labooner/doclink-checker/actions?query=workflow%3A%22Security+audit%22)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/labooner/doclink-checker)
 
 Simple application that checks that links in documentation
 are still valid.
