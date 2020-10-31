@@ -9,9 +9,19 @@ use std::path::{Path, PathBuf};
 mod checker;
 
 fn main() {
-    let args = App::new("Doclink Checker")
-        .author("Lewis Boon")
+    let args = App::new("doclink checker")
         .about("Check documentation, like Markdown, for broken links")
+        .long_about("
+Check documentation, like Markdown, for broken links.
+
+Source code can be found here: https://github.com/labooner/doclink-checker
+
+Credits:
+  - regex - https://crates.io/crates/regex
+  - reqwest - https://crates.io/crates/reqwest
+  - colored - https://crates.io/crates/colored
+  - clap - https://crates.io/crates/clap
+        ")
         .arg(
             Arg::with_name("INPUT")
                 .help("The input directory, or file, to check")
