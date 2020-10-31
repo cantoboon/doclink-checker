@@ -1,4 +1,4 @@
-use std::{env, fs};
+use std::fs;
 use std::fs::DirEntry;
 use std::path::{Path, PathBuf};
 use regex::Regex;
@@ -9,7 +9,7 @@ use clap::{App, Arg};
 mod checker;
 
 fn main() {
-    let args = App::new("Doclinks Checker")
+    let args = App::new("Doclink Checker")
                     .author("Lewis Boon")
                     .about("Check documentation, like Markdown, for broken links")
                     .arg(Arg::with_name("INPUT")
@@ -19,10 +19,21 @@ fn main() {
                     .get_matches();
 
     let input = args.value_of("INPUT").unwrap_or(".");
- 
-    scan_dir(Path::new(input));
+
+    let input = Path::new(input);
+    if !input.exists() {
+        println!("File doesn't exist: {}", input.to_string_lossy());
+        std::process::exit(1);
+    }
+
+    if input.metadata().unwrap().is_dir() {
+        scan_dir(input);
+    } else {
+        read_file(input.to_path_buf());
+    }
 }
 
+/// Loops through the contents of the directory. Errors are printed, but not propagated.
 fn scan_dir(dir: &Path) {
     match fs::read_dir(dir) {
         Ok(entries) => {
@@ -35,6 +46,7 @@ fn scan_dir(dir: &Path) {
     };    
 }
 
+/// Handles whether it is file or directory
 fn handle_dir_entry(entry: DirEntry) {
     let file_type = entry.file_type().expect("failed to get file_type");
 
@@ -45,6 +57,7 @@ fn handle_dir_entry(entry: DirEntry) {
     }
 }
 
+/// Finds all the URLs in a file
 fn read_file(path: PathBuf) {
     let contents = fs::read_to_string(path.as_path())
         .unwrap_or_else(|_| panic!("failed to read file: '{}'", path.to_str().unwrap()));
