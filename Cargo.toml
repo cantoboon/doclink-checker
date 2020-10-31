@@ -1,6 +1,6 @@
 [package]
 name = "doclink-checker"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Lewis Boon"]
 edition = "2018"
 description = "Check documentation, like Markdown, for broken links"
