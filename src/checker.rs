@@ -15,7 +15,7 @@ pub fn test_url(url: &str) -> Result<TestResult, UrlTestError> {
     };
 
     if resp.status() == StatusCode::NOT_FOUND {
-        return Err(UrlTestError{url: url.to_string(), problem: "Not found".to_string()});
+        return Ok(TestResult::NotFound);
     }
 
     Ok(TestResult::Ok)

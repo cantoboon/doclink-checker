@@ -1,8 +1,9 @@
 use std::{env, fs};
 use std::fs::DirEntry;
 use std::path::PathBuf;
-use std::io;
 use regex::Regex;
+use checker::{TestResult, UrlTestError};
+
 
 mod checker;
 
@@ -35,23 +36,26 @@ fn handle_dir_entry(entry: DirEntry) {
     }
 }
 
-fn read_file(path: PathBuf) -> Result<String, io::Error> {
-    let contents = fs::read_to_string(path.as_path())?;
+fn read_file(path: PathBuf) {
+    let contents = fs::read_to_string(path.as_path()).expect("failed to read file");
 
     let re = Regex::new(r#"((http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?)"#).unwrap();
 
     for str_match in re.captures_iter(&contents) {
-        match str_match.get(1) {
-            Some(res) => {
-                let url = res.as_str();
-                match checker::test_url(url) {
-                    Ok(_) => println!("src: {} - {} - OK", path.to_str().unwrap(), url),
-                    Err(_) => println!("{} - Failed", url),
-                };
-            },
-            None => panic!("This should never happen - if we get a match .get(1) should be fine"),
-        }
+        let str_match = str_match.get(1).expect("failed to get first match out of a Match");
+        let url = str_match.as_str();
+        handle_test_result(path.to_str().unwrap(), url, checker::test_url(url));
     }
+}
 
-    Ok(contents)
+/// Handles the result of testing a URL. Currently just prints the result.
+fn handle_test_result(path: &str, url: &str, result: Result<TestResult, UrlTestError>) {
+    match result {
+        Ok(tr) => match tr {
+            TestResult::Ok => println!("{} - {} - OK", path, url),
+            TestResult::NotFound => println!("{} - {} - Not Found", path, url),
+            TestResult::Redirect => println!("{} - {} - Redirect Found", path, url),
+        },
+        Err(e) => println!("{} - {} - Failed: {}", path, url, e)
+    }
 }
