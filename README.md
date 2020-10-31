@@ -1,5 +1,9 @@
 # Doclink Checker
 
+![Build](https://github.com/labooner/doclink-checker/workflows/Build/badge.svg)
+![Security Audit](https://github.com/labooner/doclink-checker/workflows/Security%20audit/badge.svg)
+
+
 Simple application that checks that links in documentation
 are still valid.
 

@@ -10,6 +10,7 @@ mod checker;
 
 fn main() {
     let args = App::new("doclink checker")
+        .version("0.1.0")
         .about("Check documentation, like Markdown, for broken links")
         .long_about("
 Check documentation, like Markdown, for broken links.
