@@ -7,6 +7,8 @@
 Simple application that checks that links in documentation
 are still valid.
 
+**This is a poor mans attempt at what [Lychee](https://github.com/lycheeverse/lychee) now does** - I'd recommend you check out their project!
+
 ## Completed Features
 
 - Scan files or recursively scan directories
